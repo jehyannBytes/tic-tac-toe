@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tic Tac Toe</title>
+<style>
+  body {
+    background: #121212;
+    color: #f04e3e;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+  }
+  h1 {
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+  #game {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+    gap: 10px;
+  }
+  .cell {
+    background-color: #2b0000;
+    border: 3px solid #f04e3e;
+    border-radius: 12px;
+    font-size: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s;
+  }
+  .cell:hover {
+    background-color: #450b0b;
+  }
+  #status {
+    margin-top: 20px;
+    font-size: 1.25rem;
+    min-height: 1.5em;
+  }
+  #restart-button {
+    margin-top: 20px;
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    background-color: #f04e3e;
+    border: none;
+    border-radius: 8px;
+    color: #121212;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  #restart-button:hover {
+    background-color: #ff6f5e;
+  }
+</style>
+</head>
+<body>
+
+<h1>Tic Tac Toe</h1>
+
+<div id="game">
+  <div class="cell" data-index="0"></div>
+  <div class="cell" data-index="1"></div>
+  <div class="cell" data-index="2"></div>
+  <div class="cell" data-index="3"></div>
+  <div class="cell" data-index="4"></div>
+  <div class="cell" data-index="5"></div>
+  <div class="cell" data-index="6"></div>
+  <div class="cell" data-index="7"></div>
+  <div class="cell" data-index="8"></div>
+</div>
+
+<div id="status"></div>
+<button id="restart-button">Restart Game</button>
+
+<script>
+  const cells = document.querySelectorAll('.cell');
+  const statusDiv = document.getElementById('status');
+  const restartButton = document.getElementById('restart-button');
+
+  let board = ['', '', '', '', '', '', '', '', ''];
+  let currentPlayer = 'X';
+  let isGameActive = true;
+
+  const WINNING_COMBINATIONS = [
+    [0,1,2],[3,4,5],[6,7,8], // rows
+    [0,3,6],[1,4,7],[2,5,8], // cols
+    [0,4,8],[2,4,6]          // diagonals
+  ];
+
+  const PLAYER_X_WON = "Player X has won!";
+  const PLAYER_O_WON = "Player O has won!";
+  const TIE_GAME = "Game ended in a tie!";
+  const CURRENT_TURN = () => `It's ${currentPlayer}'s turn`;
+
+  function handleCellPlayed(clickedCell, clickedIndex) {
+    board[clickedIndex] = currentPlayer;
+    clickedCell.textContent = currentPlayer;
+  }
+
+  function handlePlayerChange() {
+    currentPlayer = (currentPlayer === 'X') ? 'O' : 'X';
+    statusDiv.textContent = CURRENT_TURN();
+  }
+
+  function checkWin() {
+    return WINNING_COMBINATIONS.some(combination => {
+      const [a,b,c] = combination;
+      return board[a] && board[a] === board[b] && board[b] === board[c];
+    });
+  }
+
+  function checkTie() {
+    return board.every(cell => cell !== '');
+  }
+
+  function handleResultValidation() {
+    if (checkWin()) {
+      statusDiv.textContent = (currentPlayer === 'X') ? PLAYER_X_WON : PLAYER_O_WON;
+      isGameActive = false;
+      return;
+    }
+    if (checkTie()) {
+      statusDiv.textContent = TIE_GAME;
+      isGameActive = false;
+      return;
+    }
+    handlePlayerChange();
+  }
+
+  function handleCellClick(event) {
+    const clickedCell = event.target;
+    const clickedIndex = parseInt(clickedCell.getAttribute('data-index'));
+
+    if (board[clickedIndex] !== '' || !isGameActive) {
+      return;
+    }
+
+    handleCellPlayed(clickedCell, clickedIndex);
+    handleResultValidation();
+  }
+
+  function restartGame() {
+    board = ['', '', '', '', '', '', '', '', ''];
+    isGameActive = true;
+    currentPlayer = 'X';
+    statusDiv.textContent = CURRENT_TURN();
+    cells.forEach(cell => cell.textContent = '');
+  }
+
+  cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+  restartButton.addEventListener('click', restartGame);
+
+  statusDiv.textContent = CURRENT_TURN();
+</script>
+
+</body>
+</html>
